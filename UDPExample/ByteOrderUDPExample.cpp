@@ -45,14 +45,14 @@ typedef struct
 
 // PACKING
 
-#define PackBytes(bf, bytes, len) \
+#define packBytes(bf, bytes, len) \
     memcpy(bf, bytes, len); \
     bf += len;
 
-// PackLong is equivalent to htonl but writes the
+// packLong is equivalent to htonl but writes the
 // u_long into a buffer.
 // Note: You could do the equivalent
-//#define PackLong(bf, l) \
+//#define packLong(bf, l) \
 //    *((unsigned long *)bf) = htonl(l); \
 //    bf += sizeof(unsigned long);
 // However, this would not be portable, some processors
@@ -62,46 +62,46 @@ typedef struct
 // are historical artifacts from the Digital VAX BSD distribution.
 // In this context, long = 32 bits and short = 16 bits
 // 
-#define PackLong(bf, l) \
+#define packLong(bf, l) \
     *bf++ = (l >> 24) & 0xFF; \
     *bf++ = (l >> 16) & 0xFF; \
     *bf++ = (l >> 8) & 0xFF; \
     *bf++ = l & 0xFF;    
 
-#define PackShort(bf, s) \
+#define packShort(bf, s) \
     *bf++ = (s >> 8) & 0xFF; \
     *bf++ = s & 0xFF;    
 
-#define PackByte(bf, b) \
+#define packByte(bf, b) \
     *bf++ = b;    
 
 // UNPACKING
 
-#define UnpackBytes(bf, bytes, len) \
+#define unpackBytes(bf, bytes, len) \
     memcpy(bytes, bf, len); \
     bf += len;
 
-// UnpackLong is equivalent to ntohl but reads the
+// unpackLong is equivalent to ntohl but reads the
 // buffer into a u_long.
 // Note: You could do the equivalent
-//#define UnpackLong(bf, l) \
+//#define unpackLong(bf, l) \
 //    l = ntohl(*((unsigned long *)bf)); \
 //    bf += sizeof(unsigned long);
 // However, this would not be portable, some processors
 // would crash if bf was not word/long word aligned
 // when trying to use it as a unsigned long.
 // 
-#define UnpackLong(bf, l) \
+#define unpackLong(bf, l) \
     l = (*bf++ << 24); \
     l += (*bf++ << 16); \
     l += (*bf++ << 8); \
     l += *bf++;
 
-#define UnpackShort(bf, s) \
+#define unpackShort(bf, s) \
     s = (*bf++ << 8); \
     s += *bf++;
 
-#define UnpackByte(bf, b) \
+#define unpackByte(bf, b) \
     b = *bf++;
 
 // Could use a code to distinguish between different
@@ -117,16 +117,16 @@ unsigned short PackMsg(MSG_STRUCT *msg, unsigned char *buff)
     unsigned char *lenptr;
     //unsigned char *startptr = buff;
         
-    PackShort(buff, msg->code);    
+    packShort(buff, msg->code);    
     lenptr = buff;      // Add total length later
     buff += sizeof(unsigned short);
-    PackBytes(buff, msg->username, 20);
-    PackLong(buff, msg->longValue);
-    PackShort(buff, msg->shortValue);
-    PackByte(buff, msg->byteValue);
-    PackLong(buff, msg->intValue);
-    PackShort(buff, msg->datalen);
-    PackBytes(buff, msg->data, msg->datalen);
+    packBytes(buff, msg->username, 20);
+    packLong(buff, msg->longValue);
+    packShort(buff, msg->shortValue);
+    packByte(buff, msg->byteValue);
+    packLong(buff, msg->intValue);
+    packShort(buff, msg->datalen);
+    packBytes(buff, msg->data, msg->datalen);
     
     // Calculate the correct message length.
     // =====================================
@@ -154,7 +154,7 @@ unsigned short PackMsg(MSG_STRUCT *msg, unsigned char *buff)
             + sizeof(unsigned short)
             + msg->datalen;     
             
-    PackShort(lenptr, msglen);
+    packShort(lenptr, msglen);
     
     return msglen;             
 }
@@ -163,15 +163,15 @@ unsigned short PackMsg(MSG_STRUCT *msg, unsigned char *buff)
 // message structure
 void UnpackMsg(MSG_STRUCT *msg, unsigned char *buff)
 {
-    UnpackShort(buff, msg->code);
-    UnpackShort(buff, msg->length);    
-    UnpackBytes(buff, msg->username, 20);
-    UnpackLong(buff, msg->longValue);
-    UnpackShort(buff, msg->shortValue);
-    UnpackByte(buff, msg->byteValue);
-    UnpackLong(buff, msg->intValue);
-    UnpackShort(buff, msg->datalen);
-    UnpackBytes(buff, msg->data, msg->datalen);
+    unpackShort(buff, msg->code);
+    unpackShort(buff, msg->length);    
+    unpackBytes(buff, msg->username, 20);
+    unpackLong(buff, msg->longValue);
+    unpackShort(buff, msg->shortValue);
+    unpackByte(buff, msg->byteValue);
+    unpackLong(buff, msg->intValue);
+    unpackShort(buff, msg->datalen);
+    unpackBytes(buff, msg->data, msg->datalen);
 }
 
 int _tmain(int argc, _TCHAR* argv[])
