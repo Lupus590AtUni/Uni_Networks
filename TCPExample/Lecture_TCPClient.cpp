@@ -1,4 +1,5 @@
-#include "stdafx.h"
+#include <iostream>
+#include <tchar.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdlib.h>
